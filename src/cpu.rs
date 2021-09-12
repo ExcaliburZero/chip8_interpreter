@@ -40,6 +40,10 @@ impl CPU {
         self.ram.write_bytes(ROM_ADDRESS, rom)
     }
 
+    pub fn initialize_program_counter(&mut self) {
+        self.registers.program_counter = ROM_ADDRESS;
+    }
+
     fn fetch(&self) -> Result<Instruction, String> {
         let instruction_bytes = self.ram.read_u16(self.registers.program_counter)?;
 

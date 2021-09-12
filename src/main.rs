@@ -32,6 +32,9 @@ fn run(args: &ArgMatches) -> Result<(), String> {
     load_rom(&mut cpu, rom_filepath)?;
     println!("Loaded ROM: {}", rom_filepath);
 
+    cpu.initialize_program_counter();
+    println!("Initialized program counter");
+
     Ok(())
 }
 
