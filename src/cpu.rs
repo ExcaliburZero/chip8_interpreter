@@ -46,12 +46,10 @@ impl CPU {
         self.registers.program_counter = ROM_ADDRESS;
     }
 
-    pub fn step(&mut self) -> Result<(), String> {
+    pub fn step(&mut self) -> Result<ScreenChanged, String> {
         let instruction_bytes = self.fetch()?;
         let instruction = self.decode(instruction_bytes)?;
-        self.execute(&instruction)?;
-
-        Ok(())
+        self.execute(&instruction)
     }
 
     fn fetch(&self) -> Result<u16, String> {
@@ -62,7 +60,7 @@ impl CPU {
         Instruction::from_u16(instruction_bytes)
     }
 
-    fn execute(&mut self, instruction: &Instruction) -> Result<(), String> {
+    fn execute(&mut self, instruction: &Instruction) -> Result<ScreenChanged, String> {
         use Instruction::*;
 
         println!("Inst: {:?}", instruction);
@@ -72,12 +70,19 @@ impl CPU {
         self.registers.program_counter += INSTRUCTION_SIZE_BYTES;
 
         match instruction {
-            ClearDisplay() => self.screen.clear(),
+            ClearDisplay() => {
+                self.screen.clear();
+                Ok(ScreenChanged::Changed)
+            }
             i => panic!("Unhandled instruction: {:?}", i),
         }
-
-        Ok(())
     }
+}
+
+#[derive(Debug, Eq, PartialEq)]
+pub enum ScreenChanged {
+    Changed,
+    NoChange,
 }
 
 #[derive(Debug, Default, Eq, PartialEq)]

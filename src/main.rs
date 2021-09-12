@@ -37,9 +37,17 @@ fn run(args: &ArgMatches) -> Result<(), String> {
 
     println!("Starting execution");
 
-    cpu.step()?;
-
     display_screen(&cpu.screen);
+
+    loop {
+        let screen_changed = cpu.step()?;
+
+        if screen_changed == cpu::ScreenChanged::Changed {
+            print!("\x1B[32A");
+            print!("\x1B[J");
+            display_screen(&cpu.screen);
+        }
+    }
 
     Ok(())
 }
