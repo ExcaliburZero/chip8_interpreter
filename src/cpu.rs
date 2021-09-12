@@ -44,10 +44,33 @@ impl CPU {
         self.registers.program_counter = ROM_ADDRESS;
     }
 
-    fn fetch(&self) -> Result<Instruction, String> {
-        let instruction_bytes = self.ram.read_u16(self.registers.program_counter)?;
+    pub fn step(&mut self) -> Result<(), String> {
+        let instruction_bytes = self.fetch()?;
+        let instruction = self.decode(instruction_bytes)?;
+        self.execute(&instruction)?;
 
+        Ok(())
+    }
+
+    fn fetch(&self) -> Result<u16, String> {
+        self.ram.read_u16(self.registers.program_counter)
+    }
+
+    fn decode(&self, instruction_bytes: u16) -> Result<Instruction, String> {
         Instruction::from_u16(instruction_bytes)
+    }
+
+    fn execute(&mut self, instruction: &Instruction) -> Result<(), String> {
+        use Instruction::*;
+
+        println!("Inst: {:?}", instruction);
+
+        match instruction {
+            ClearDisplay() => (),
+            i => panic!("Unhandled instruction: {:?}", i),
+        }
+
+        Ok(())
     }
 }
 

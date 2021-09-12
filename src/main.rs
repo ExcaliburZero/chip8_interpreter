@@ -35,6 +35,10 @@ fn run(args: &ArgMatches) -> Result<(), String> {
     cpu.initialize_program_counter();
     println!("Initialized program counter");
 
+    println!("Starting execution");
+
+    cpu.step()?;
+
     Ok(())
 }
 
