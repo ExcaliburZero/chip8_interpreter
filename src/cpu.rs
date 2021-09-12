@@ -30,7 +30,7 @@ const ROM_ADDRESS: Address = 0x0200;
 pub struct CPU {
     registers: Registers,
     ram: ram::RAM,
-    screen: Screen,
+    pub screen: Screen,
 }
 
 impl CPU {

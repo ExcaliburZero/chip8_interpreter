@@ -6,7 +6,7 @@ use std::io::{BufReader, Read};
 
 use clap::{App, Arg, ArgMatches};
 
-use chip8_interpreter::cpu;
+use chip8_interpreter::{cpu, screen};
 
 fn main() {
     let matches = App::new("chip8_interpreter")
@@ -39,7 +39,22 @@ fn run(args: &ArgMatches) -> Result<(), String> {
 
     cpu.step()?;
 
+    display_screen(&cpu.screen);
+
     Ok(())
+}
+
+fn display_screen(screen: &screen::Screen) {
+    for row in screen.pixels.iter() {
+        print!("|");
+        for p in row.iter() {
+            match p {
+                screen::Pixel::On => print!("#"),
+                screen::Pixel::Off => print!(" "),
+            }
+        }
+        println!("|");
+    }
 }
 
 fn load_rom(cpu: &mut cpu::CPU, filepath: &str) -> Result<(), String> {

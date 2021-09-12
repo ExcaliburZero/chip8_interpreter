@@ -1,5 +1,5 @@
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-enum Pixel {
+pub enum Pixel {
     On,
     Off,
 }
@@ -12,7 +12,7 @@ impl Default for Pixel {
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Screen {
-    pixels: [[Pixel; 64]; 32],
+    pub pixels: [[Pixel; 64]; 32],
 }
 
 impl Screen {
