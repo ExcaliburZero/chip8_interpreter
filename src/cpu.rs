@@ -1,4 +1,4 @@
-use crate::instruction::Instruction;
+use crate::instruction::{Instruction, INSTRUCTION_SIZE_BYTES};
 use crate::ram;
 use crate::ram::Address;
 
@@ -64,6 +64,10 @@ impl CPU {
         use Instruction::*;
 
         println!("Inst: {:?}", instruction);
+
+        // Increment the program counter to look at the next instruction. Jump instructions will
+        // overwrite this change with their jump destination.
+        self.registers.program_counter += INSTRUCTION_SIZE_BYTES;
 
         match instruction {
             ClearDisplay() => (),

@@ -1,3 +1,5 @@
+pub const INSTRUCTION_SIZE_BYTES: u16 = 2;
+
 #[derive(Debug, Eq, PartialEq)]
 pub enum Instruction {
     ClearDisplay(),
