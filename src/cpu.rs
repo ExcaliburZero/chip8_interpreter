@@ -1,4 +1,4 @@
-use crate::instruction::{Instruction, INSTRUCTION_SIZE_BYTES};
+use crate::instruction::{Instruction, Register, INSTRUCTION_SIZE_BYTES};
 use crate::ram;
 use crate::ram::Address;
 use crate::screen::Screen;
@@ -78,6 +78,10 @@ impl CPU {
                 self.registers.index_register = *address;
                 Ok(ScreenChanged::NoChange)
             }
+            SetRegister(register, value) => {
+                self.registers.set_register(register, *value);
+                Ok(ScreenChanged::NoChange)
+            }
             i => panic!("Unhandled instruction: {:?}", i),
         }
     }
@@ -112,6 +116,31 @@ struct Registers {
     vd: u8,
     ve: u8,
     vf: u8,
+}
+
+impl Registers {
+    fn set_register(&mut self, register: &Register, value: u8) {
+        use Register::*;
+
+        match register {
+            V0 => self.v0 = value,
+            V1 => self.v1 = value,
+            V2 => self.v2 = value,
+            V3 => self.v3 = value,
+            V4 => self.v4 = value,
+            V5 => self.v5 = value,
+            V6 => self.v6 = value,
+            V7 => self.v7 = value,
+            V8 => self.v8 = value,
+            V9 => self.v9 = value,
+            Va => self.va = value,
+            Vb => self.vb = value,
+            Vc => self.vc = value,
+            Vd => self.vd = value,
+            Ve => self.ve = value,
+            Vf => self.vf = value,
+        }
+    }
 }
 
 #[test]

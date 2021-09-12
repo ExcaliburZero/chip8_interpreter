@@ -6,6 +6,7 @@ pub const INSTRUCTION_SIZE_BYTES: u16 = 2;
 pub enum Instruction {
     ClearDisplay(),
     SetIndexRegister(Address),
+    SetRegister(Register, u8),
 }
 
 impl Instruction {
@@ -20,6 +21,12 @@ impl Instruction {
                     0xA => {
                         let address = Instruction::get_address(bytes);
                         Ok(SetIndexRegister(address))
+                    }
+                    0x6 => {
+                        let register = Instruction::get_first_register(bytes);
+                        let value = Instruction::get_value(bytes);
+
+                        Ok(SetRegister(register, value))
                     }
                     _ => Err(format!("Unrecognized instruction: 0x{:x}", bytes)),
                 }
@@ -37,12 +44,78 @@ impl Instruction {
         // Get the last three nibbles
         bytes & 0x0FFF
     }
+
+    fn get_first_register(bytes: u16) -> Register {
+        // Get the second nibble
+        let two_nibbles_len = 4 * 2;
+        let register_id = ((bytes & 0x0F00) >> two_nibbles_len) as u8;
+
+        Register::from_nibble(register_id)
+    }
+
+    fn get_value(bytes: u16) -> u8 {
+        // Get the last two nibbles
+        (bytes & 0x00FF) as u8
+    }
+}
+
+#[derive(Debug, Eq, PartialEq)]
+pub enum Register {
+    V0,
+    V1,
+    V2,
+    V3,
+    V4,
+    V5,
+    V6,
+    V7,
+    V8,
+    V9,
+    Va,
+    Vb,
+    Vc,
+    Vd,
+    Ve,
+    Vf,
+}
+
+impl Register {
+    fn from_nibble(nibble: u8) -> Register {
+        use Register::*;
+
+        match nibble {
+            0x0 => V0,
+            0x1 => V1,
+            0x2 => V2,
+            0x3 => V3,
+            0x4 => V4,
+            0x5 => V5,
+            0x6 => V6,
+            0x7 => V7,
+            0x8 => V8,
+            0x9 => V9,
+            0xA => Va,
+            0xB => Vb,
+            0xC => Vc,
+            0xD => Vd,
+            0xE => Ve,
+            0xF => Vf,
+            _ => {
+                panic!(
+                    "Register id is too large to be a nibble: {} (0x{:x})",
+                    nibble, nibble
+                )
+            }
+        }
+    }
 }
 
 #[test]
 fn instruction_from_u16() {
     use Instruction::*;
+    use Register::*;
 
     assert_eq!(Ok(ClearDisplay()), Instruction::from_u16(0x00E0));
     assert_eq!(Ok(SetIndexRegister(0x22A)), Instruction::from_u16(0xA22A));
+    assert_eq!(Ok(SetRegister(V1, 0x23)), Instruction::from_u16(0x6123));
 }
