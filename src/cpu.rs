@@ -80,6 +80,13 @@ impl CPU {
                 self.registers.set_register(register, *value);
                 Ok(ScreenChanged::NoChange)
             }
+            // 0x7XNN
+            IncrementRegister(register, increment) => {
+                let prev_value = self.registers.get_register(register);
+                self.registers
+                    .set_register(register, prev_value + increment);
+                Ok(ScreenChanged::NoChange)
+            }
             // 0xANNN
             SetIndexRegister(address) => {
                 self.registers.index_register = *address;
