@@ -70,18 +70,22 @@ impl CPU {
         self.registers.program_counter += INSTRUCTION_SIZE_BYTES;
 
         match instruction {
+            // 0x00E0
             ClearDisplay() => {
                 self.screen.clear();
                 Ok(ScreenChanged::Changed)
             }
-            SetIndexRegister(address) => {
-                self.registers.index_register = *address;
-                Ok(ScreenChanged::NoChange)
-            }
+            // 0x6XNN
             SetRegister(register, value) => {
                 self.registers.set_register(register, *value);
                 Ok(ScreenChanged::NoChange)
             }
+            // 0xANNN
+            SetIndexRegister(address) => {
+                self.registers.index_register = *address;
+                Ok(ScreenChanged::NoChange)
+            }
+            // 0xDXYN
             DrawSprite(x_register, y_register, height) => {
                 let x = self.registers.get_register(x_register);
                 let y = self.registers.get_register(y_register);
