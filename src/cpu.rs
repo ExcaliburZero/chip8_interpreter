@@ -1,6 +1,7 @@
 use crate::instruction::{Instruction, INSTRUCTION_SIZE_BYTES};
 use crate::ram;
 use crate::ram::Address;
+use crate::screen::Screen;
 
 // From: https://tobiasvl.github.io/blog/write-a-chip-8-emulator/#font
 const DEFAULT_FONT: [u8; 80] = [
@@ -29,6 +30,7 @@ const ROM_ADDRESS: Address = 0x0200;
 pub struct CPU {
     registers: Registers,
     ram: ram::RAM,
+    screen: Screen,
 }
 
 impl CPU {
@@ -70,7 +72,7 @@ impl CPU {
         self.registers.program_counter += INSTRUCTION_SIZE_BYTES;
 
         match instruction {
-            ClearDisplay() => (),
+            ClearDisplay() => self.screen.clear(),
             i => panic!("Unhandled instruction: {:?}", i),
         }
 
