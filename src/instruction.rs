@@ -7,6 +7,7 @@ pub enum Instruction {
     ClearDisplay(),
     SetIndexRegister(Address),
     SetRegister(Register, u8),
+    DrawSprite(Register, Register, u8),
 }
 
 impl Instruction {
@@ -23,10 +24,19 @@ impl Instruction {
                         Ok(SetIndexRegister(address))
                     }
                     0x6 => {
-                        let register = Instruction::get_first_register(bytes);
+                        let register = Register::from_nibble(Instruction::get_second_nibble(bytes));
                         let value = Instruction::get_value(bytes);
 
                         Ok(SetRegister(register, value))
+                    }
+                    0xD => {
+                        let x_register =
+                            Register::from_nibble(Instruction::get_second_nibble(bytes));
+                        let y_register =
+                            Register::from_nibble(Instruction::get_third_nibble(bytes));
+                        let height = Instruction::get_fourth_nibble(bytes);
+
+                        Ok(DrawSprite(x_register, y_register, height))
                     }
                     _ => Err(format!("Unrecognized instruction: 0x{:x}", bytes)),
                 }
@@ -35,9 +45,7 @@ impl Instruction {
     }
 
     fn get_opcode(bytes: u16) -> u8 {
-        // Get the first nibble
-        let three_nibbles_len = 4 * 3;
-        ((bytes & 0xF000) >> three_nibbles_len) as u8
+        Instruction::get_first_nibble(bytes)
     }
 
     fn get_address(bytes: u16) -> Address {
@@ -45,12 +53,27 @@ impl Instruction {
         bytes & 0x0FFF
     }
 
-    fn get_first_register(bytes: u16) -> Register {
+    fn get_first_nibble(bytes: u16) -> u8 {
+        // Get the first nibble
+        let three_nibbles_len = 4 * 3;
+        ((bytes & 0xF000) >> three_nibbles_len) as u8
+    }
+
+    fn get_second_nibble(bytes: u16) -> u8 {
         // Get the second nibble
         let two_nibbles_len = 4 * 2;
-        let register_id = ((bytes & 0x0F00) >> two_nibbles_len) as u8;
+        ((bytes & 0x0F00) >> two_nibbles_len) as u8
+    }
 
-        Register::from_nibble(register_id)
+    fn get_third_nibble(bytes: u16) -> u8 {
+        // Get the third nibble
+        let one_nibble_len = 4;
+        ((bytes & 0x00F0) >> one_nibble_len) as u8
+    }
+
+    fn get_fourth_nibble(bytes: u16) -> u8 {
+        // Get the last nibble
+        (bytes & 0x000F) as u8
     }
 
     fn get_value(bytes: u16) -> u8 {

@@ -1,7 +1,7 @@
 use crate::instruction::{Instruction, Register, INSTRUCTION_SIZE_BYTES};
 use crate::ram;
 use crate::ram::Address;
-use crate::screen::Screen;
+use crate::screen::{AnyPixelsUnset, Position, Screen};
 
 // From: https://tobiasvl.github.io/blog/write-a-chip-8-emulator/#font
 const DEFAULT_FONT: [u8; 80] = [
@@ -82,6 +82,23 @@ impl CPU {
                 self.registers.set_register(register, *value);
                 Ok(ScreenChanged::NoChange)
             }
+            DrawSprite(x_register, y_register, height) => {
+                let x = self.registers.get_register(x_register);
+                let y = self.registers.get_register(y_register);
+                let position = Position::new(x, y);
+
+                let bytes = self
+                    .ram
+                    .read_sprite(self.registers.index_register, *height)?;
+
+                let any_pixels_unset = self.screen.draw_sprite(&position, &bytes)?;
+                self.registers.vf = match any_pixels_unset {
+                    AnyPixelsUnset::Yes => 1,
+                    AnyPixelsUnset::No => 0,
+                };
+
+                Ok(ScreenChanged::Changed)
+            }
             i => panic!("Unhandled instruction: {:?}", i),
         }
     }
@@ -139,6 +156,29 @@ impl Registers {
             Vd => self.vd = value,
             Ve => self.ve = value,
             Vf => self.vf = value,
+        }
+    }
+
+    fn get_register(&self, register: &Register) -> u8 {
+        use Register::*;
+
+        match register {
+            V0 => self.v0,
+            V1 => self.v1,
+            V2 => self.v2,
+            V3 => self.v3,
+            V4 => self.v4,
+            V5 => self.v5,
+            V6 => self.v6,
+            V7 => self.v7,
+            V8 => self.v8,
+            V9 => self.v9,
+            Va => self.va,
+            Vb => self.vb,
+            Vc => self.vc,
+            Vd => self.vd,
+            Ve => self.ve,
+            Vf => self.vf,
         }
     }
 }

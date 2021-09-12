@@ -43,8 +43,9 @@ fn run(args: &ArgMatches) -> Result<(), String> {
         let screen_changed = cpu.step()?;
 
         if screen_changed == cpu::ScreenChanged::Changed {
-            print!("\x1B[32A");
-            print!("\x1B[J");
+            //print!("\x1B[32A");
+            //print!("\x1B[J");
+            println!("----------------------");
             display_screen(&cpu.screen);
         }
     }

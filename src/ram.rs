@@ -44,6 +44,17 @@ impl RAM {
 
         Ok((first_byte << 8) | second_byte)
     }
+
+    pub fn read_sprite(&self, address: Address, height: u8) -> Result<Vec<u8>, String> {
+        // Note: Sprite width is always 8 pixels and data is encoded as each byte is a row of the
+        // sprite with 0=transparent and 1=filled.
+        let mut sprite_bytes = vec![];
+        for i in 0..height {
+            sprite_bytes.push(self.read_byte(address + i as u16)?);
+        }
+
+        Ok(sprite_bytes)
+    }
 }
 
 #[test]
