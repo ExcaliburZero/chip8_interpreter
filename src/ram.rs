@@ -12,15 +12,22 @@ impl Default for RAM {
 }
 
 impl RAM {
-    pub fn write_bytes(&mut self, address: Address, bytes: &[u8]) {
+    pub fn write_bytes(&mut self, address: Address, bytes: &[u8]) -> Result<(), String> {
         for (i, byte) in bytes.iter().enumerate() {
             let cur_address = address + (i as u16);
-            self.write_byte(cur_address, *byte)
+            self.write_byte(cur_address, *byte)?
         }
+
+        Ok(())
     }
 
-    pub fn write_byte(&mut self, address: Address, byte: u8) {
+    pub fn write_byte(&mut self, address: Address, byte: u8) -> Result<(), String> {
+        if address >= 4096 {
+            return Err(format!("Write at invalid memory address: 0x{:x}", address));
+        }
+
         self.memory[address as usize] = byte;
+        Ok(())
     }
 
     pub fn read_byte(&self, address: Address) -> Result<u8, String> {
@@ -53,7 +60,7 @@ fn ram_write_and_read_byte() {
 
     assert_eq!(Ok(0x00), ram.read_byte(0x0000));
 
-    ram.write_byte(0x00, 0x42);
+    assert_eq!(Ok(()), ram.write_byte(0x00, 0x42));
 
     assert_eq!(Ok(0x42), ram.read_byte(0x0000));
 }

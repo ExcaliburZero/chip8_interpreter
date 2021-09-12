@@ -22,7 +22,8 @@ const DEFAULT_FONT: [u8; 80] = [
     0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 ];
 
-const FONT_ADDRESS: Address = 0x050;
+const FONT_ADDRESS: Address = 0x0050;
+const ROM_ADDRESS: Address = 0x0200;
 
 #[derive(Debug, Default, Eq, PartialEq)]
 pub struct CPU {
@@ -31,8 +32,12 @@ pub struct CPU {
 }
 
 impl CPU {
-    pub fn load_default_font(&mut self) {
+    pub fn load_default_font(&mut self) -> Result<(), String> {
         self.ram.write_bytes(FONT_ADDRESS, &DEFAULT_FONT)
+    }
+
+    pub fn load_rom(&mut self, rom: &[u8]) -> Result<(), String> {
+        self.ram.write_bytes(ROM_ADDRESS, rom)
     }
 
     fn fetch(&self) -> Result<Instruction, String> {
@@ -73,7 +78,7 @@ fn cpu_load_default_font() {
 
     assert_eq!(Ok(0x00), cpu.ram.read_byte(FONT_ADDRESS));
 
-    cpu.load_default_font();
+    assert_eq!(Ok(()), cpu.load_default_font());
 
     for i in 0..80 {
         assert_eq!(
