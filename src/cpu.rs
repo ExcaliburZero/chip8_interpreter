@@ -74,6 +74,10 @@ impl CPU {
                 self.screen.clear();
                 Ok(ScreenChanged::Changed)
             }
+            SetIndexRegister(address) => {
+                self.registers.index_register = *address;
+                Ok(ScreenChanged::NoChange)
+            }
             i => panic!("Unhandled instruction: {:?}", i),
         }
     }
