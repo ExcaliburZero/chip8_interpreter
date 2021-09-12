@@ -81,4 +81,55 @@ impl RAM {
     fn write_byte(&mut self, address: Address, byte: u8) {
         self.memory[address as usize] = byte;
     }
+
+    fn read_byte(&self, address: Address) -> Result<u8, String> {
+        if address >= 4096 {
+            return Err(format!("Read at invalid memory address: 0x{:x}", address));
+        }
+
+        Ok(self.memory[address as usize])
+    }
+}
+
+#[test]
+fn ram_starts_empty() {
+    let ram = RAM::default();
+
+    assert_eq!(Ok(0x00), ram.read_byte(0x0000));
+    assert_eq!(Ok(0x00), ram.read_byte(FONT_ADDRESS));
+}
+
+#[test]
+fn ram_write_and_read_byte() {
+    let mut ram = RAM::default();
+
+    assert_eq!(Ok(0x00), ram.read_byte(0x0000));
+
+    ram.write_byte(0x00, 0x42);
+
+    assert_eq!(Ok(0x42), ram.read_byte(0x0000));
+}
+
+#[test]
+fn cpu_load_default_font() {
+    let mut cpu = CPU::default();
+
+    assert_eq!(Ok(0x00), cpu.ram.read_byte(FONT_ADDRESS));
+
+    cpu.load_default_font();
+
+    for i in 0..80 {
+        assert_eq!(
+            Ok(DEFAULT_FONT[i]),
+            cpu.ram.read_byte(FONT_ADDRESS + (i as u16))
+        );
+    }
+}
+
+#[test]
+fn ram_read_byte_invalid_memory_address() {
+    let ram = RAM::default();
+
+    let expected = Err("Read at invalid memory address: 0x1000".to_string());
+    assert_eq!(expected, ram.read_byte(0x1000));
 }
