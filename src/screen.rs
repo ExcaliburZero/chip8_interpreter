@@ -93,7 +93,11 @@ impl Screen {
             ));
         }
 
-        match Screen::get_nth_bit(position.x, bytes[position.y as usize])? {
+        // Convert from a left=0 index to a right=0 index so we can use a classic mask+shift
+        // algorithm to get the correct bit
+        let bit_reverse_index = 7 - position.x;
+
+        match Screen::get_nth_bit(bit_reverse_index, bytes[position.y as usize])? {
             true => Ok(Pixel::On),
             false => Ok(Pixel::Off),
         }
