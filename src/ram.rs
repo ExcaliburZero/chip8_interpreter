@@ -30,6 +30,13 @@ impl RAM {
 
         Ok(self.memory[address as usize])
     }
+
+    pub fn read_u16(&self, address: Address) -> Result<u16, String> {
+        let first_byte = self.read_byte(address)? as u16;
+        let second_byte = self.read_byte(address + 1)? as u16;
+
+        Ok((first_byte << 8) | second_byte)
+    }
 }
 
 #[test]

@@ -1,3 +1,4 @@
+use crate::instruction::Instruction;
 use crate::ram;
 use crate::ram::Address;
 
@@ -32,6 +33,12 @@ pub struct CPU {
 impl CPU {
     pub fn load_default_font(&mut self) {
         self.ram.write_bytes(FONT_ADDRESS, &DEFAULT_FONT)
+    }
+
+    fn fetch(&self) -> Result<Instruction, String> {
+        let instruction_bytes = self.ram.read_u16(self.registers.program_counter)?;
+
+        Instruction::from_u16(instruction_bytes)
     }
 }
 
