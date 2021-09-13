@@ -4,7 +4,7 @@ pub const INSTRUCTION_SIZE_BYTES: u16 = 2;
 
 type InstructionNibble = (u8, u8, u8, u8);
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Instruction {
     ClearDisplay(),                           // 0x00E0
     Return(),                                 // 0x00EE
@@ -201,7 +201,7 @@ impl Instruction {
     }
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Register {
     V0,
     V1,
@@ -276,14 +276,14 @@ impl Register {
 
     pub fn inclusive_range(start: &Register, end: &Register) -> Result<Vec<Register>, String> {
         let start_nibble = start.to_nibble();
-        let end_nibble = start.to_nibble();
+        let end_nibble = end.to_nibble();
 
         if end_nibble < start_nibble {
             return Err(format!("Invalid register range: {:?} - {:?}", start, end));
         }
 
         Ok((start_nibble..=end_nibble)
-            .map(|n| Register::from_nibble(n))
+            .map(Register::from_nibble)
             .collect())
     }
 }

@@ -383,3 +383,39 @@ fn cpu_load_default_font() {
         );
     }
 }
+
+#[test]
+fn cpu_dump_load_registers() {
+    let mut cpu = CPU::default();
+
+    assert_eq!(
+        Ok(ScreenChanged::NoChange),
+        cpu.execute(&Instruction::SetRegister(Register::V1, 48))
+    );
+
+    assert_eq!(
+        Ok(ScreenChanged::NoChange),
+        cpu.execute(&Instruction::SetIndexRegister(0x0400))
+    );
+
+    assert_eq!(
+        Ok(ScreenChanged::NoChange),
+        cpu.execute(&Instruction::DumpRegisters(Register::V1))
+    );
+
+    assert_eq!(
+        Ok(ScreenChanged::NoChange),
+        cpu.execute(&Instruction::SetIndexRegister(0x0401))
+    );
+
+    assert_eq!(
+        Ok(ScreenChanged::NoChange),
+        cpu.execute(&Instruction::LoadRegisters(Register::V0))
+    );
+
+    assert_eq!(Ok(0), cpu.ram.read_byte(0x0400));
+    assert_eq!(Ok(48), cpu.ram.read_byte(0x0401));
+
+    assert_eq!(48, cpu.registers.v1);
+    assert_eq!(48, cpu.registers.v0);
+}
