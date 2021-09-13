@@ -310,6 +310,13 @@ impl CPU {
 
                 Ok(ScreenChanged::Changed)
             }
+            // 0xFX07
+            GetDelayTimer(register) => {
+                let value = self.registers.delay_timer;
+
+                self.registers.set_register(register, value);
+                Ok(ScreenChanged::NoChange)
+            }
             // 0xFX15
             SetDelayTimer(register) => {
                 let value = self.registers.get_register(register);

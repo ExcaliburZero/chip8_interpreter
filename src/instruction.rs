@@ -28,6 +28,7 @@ pub enum Instruction {
     SetIndexRegister(Address),                  // 0xANNN
     SetRandomAnd(Register, u8),                 // 0xCXNN
     DrawSprite(Register, Register, u8),         // 0xDXYN
+    GetDelayTimer(Register),                    // 0xFX07
     SetDelayTimer(Register),                    // 0xFX15
     IncrementIndexByRegister(Register),         // 0xFX1E
     GetFontCharacter(Register),                 // 0xFX29
@@ -155,6 +156,11 @@ impl Instruction {
                 let height = c;
 
                 Ok(DrawSprite(x_register, y_register, height))
+            }
+            (0xF, a, 0x0, 0x7) => {
+                let register = Register::from_nibble(a);
+
+                Ok(GetDelayTimer(register))
             }
             (0xF, a, 0x1, 0x5) => {
                 let register = Register::from_nibble(a);
