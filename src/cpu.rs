@@ -268,6 +268,22 @@ impl CPU {
 
                 Ok(ScreenChanged::NoChange)
             }
+            // 0xFX65
+            LoadRegisters(last_register) => {
+                let base_address = self.registers.index_register;
+
+                for (i, register) in Register::inclusive_range(&Register::V0, last_register)?
+                    .iter()
+                    .enumerate()
+                {
+                    let src_address = base_address + (i as u16);
+                    let value = self.ram.read_byte(src_address)?;
+
+                    self.registers.set_register(register, value);
+                }
+
+                Ok(ScreenChanged::NoChange)
+            }
             i => panic!("Unhandled instruction: {:?}", i),
         }
     }

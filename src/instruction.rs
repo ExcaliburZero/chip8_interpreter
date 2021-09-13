@@ -28,6 +28,7 @@ pub enum Instruction {
     DrawSprite(Register, Register, u8),       // 0xDXYN
     SetDelayTimer(Register),                  // 0xFX15
     DumpRegisters(Register),                  // 0xFX55
+    LoadRegisters(Register),                  // 0xFX65
 }
 
 impl Instruction {
@@ -147,6 +148,11 @@ impl Instruction {
                 let register = Register::from_nibble(a);
 
                 Ok(DumpRegisters(register))
+            }
+            (0xF, a, 0x6, 0x5) => {
+                let register = Register::from_nibble(a);
+
+                Ok(LoadRegisters(register))
             }
             _ => Err(format!("Unrecognized instruction: 0x{:04x}", bytes)),
         }
