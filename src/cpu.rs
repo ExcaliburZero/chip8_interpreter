@@ -7,6 +7,7 @@ use crate::instruction::{Instruction, Register, INSTRUCTION_SIZE_BYTES};
 use crate::ram;
 use crate::ram::Address;
 use crate::screen::{AnyPixelsUnset, Position, Screen};
+use crate::views::{InputState, Inputs};
 
 // From: https://tobiasvl.github.io/blog/write-a-chip-8-emulator/#font
 const DEFAULT_FONT: [u8; 80] = [
@@ -55,7 +56,7 @@ impl CPU {
         self.registers.program_counter = ROM_ADDRESS;
     }
 
-    pub fn step(&mut self, time: &Instant) -> Result<ScreenChanged, String> {
+    pub fn step(&mut self, time: &Instant, inputs: &Inputs) -> Result<ScreenChanged, String> {
         self.handle_timers(time);
 
         let instruction_bytes = self.fetch()?;

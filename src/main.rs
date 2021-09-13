@@ -49,7 +49,8 @@ fn run(args: &ArgMatches) -> Result<(), String> {
     view.open(&cpu.screen);
 
     loop {
-        let screen_changed = cpu.step(&time::Instant::now())?;
+        let inputs = view.get_inputs();
+        let screen_changed = cpu.step(&time::Instant::now(), &inputs)?;
 
         if screen_changed == cpu::ScreenChanged::Changed {
             // Clear the screen so we can redraw it

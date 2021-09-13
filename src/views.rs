@@ -2,10 +2,20 @@ use std::io::Write;
 
 use crate::screen::{Pixel, Screen};
 
+pub enum InputState {
+    Pressed,
+    NotPressed,
+}
+
+pub struct Inputs {
+    one: InputState,
+}
+
 pub trait View {
     fn open(&mut self, screen: &Screen);
     fn close(&mut self);
     fn update(&mut self, screen: &Screen);
+    fn get_inputs(&mut self) -> Inputs;
 }
 
 pub struct CliView<W: Write> {
@@ -42,5 +52,11 @@ impl<W: Write> View for CliView<W> {
 
     fn update(&mut self, screen: &Screen) {
         self.display_screen(screen)
+    }
+
+    fn get_inputs(&mut self) -> Inputs {
+        Inputs {
+            one: InputState::NotPressed,
+        }
     }
 }
