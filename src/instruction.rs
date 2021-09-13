@@ -17,6 +17,7 @@ pub enum Instruction {
     IncrementRegister(Register, u8),          // 0x7XNN
     CopyRegister(Register, Register),         // 0x8XY0
     BitwiseOr(Register, Register),            // 0x8XY1
+    BitwiseAnd(Register, Register),           // 0x8XY2
     JumpIfRegistersNotEq(Register, Register), // 0x9XY0
     SetIndexRegister(Address),                // 0xANNN
     DrawSprite(Register, Register, u8),       // 0xDXYN
@@ -78,6 +79,12 @@ impl Instruction {
                 let second_register = Register::from_nibble(b);
 
                 Ok(BitwiseOr(first_register, second_register))
+            }
+            (0x8, a, b, 0x2) => {
+                let first_register = Register::from_nibble(a);
+                let second_register = Register::from_nibble(b);
+
+                Ok(BitwiseAnd(first_register, second_register))
             }
             (0x9, a, b, 0x0) => {
                 let first_register = Register::from_nibble(a);
