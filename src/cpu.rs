@@ -190,6 +190,17 @@ impl CPU {
 
                 Ok(ScreenChanged::NoChange)
             }
+            // 0x8XYE
+            LeftShift(register) => {
+                let a = self.registers.get_register(register);
+                let value = a << 1;
+                let overflowed_bit = ((a & 0x80) >> 7) as u8;
+
+                self.registers.set_register(register, value);
+                self.registers.vf = overflowed_bit;
+
+                Ok(ScreenChanged::NoChange)
+            }
             // 0x9XY0
             JumpIfRegistersNotEq(first_register, second_register) => {
                 let a = self.registers.get_register(first_register);
