@@ -73,6 +73,14 @@ impl CPU {
                 self.screen.clear();
                 Ok(ScreenChanged::Changed)
             }
+            // 0x00EE
+            Return() => match self.registers.stack.pop() {
+                Some(address) => {
+                    self.registers.program_counter = address;
+                    Ok(ScreenChanged::NoChange)
+                }
+                None => Err("No address on the stack to return to.".to_string()),
+            },
             // 0x1NNN
             Jump(address) => {
                 self.registers.program_counter = *address;

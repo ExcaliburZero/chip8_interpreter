@@ -7,6 +7,7 @@ type InstructionNibble = (u8, u8, u8, u8);
 #[derive(Debug, Eq, PartialEq)]
 pub enum Instruction {
     ClearDisplay(),                           // 0x00E0
+    Return(),                                 // 0x00EE
     Jump(Address),                            // 0x1NNN
     Call(Address),                            // 0x2NNN
     JumpIfEqValue(Register, u8),              // 0x3XNN
@@ -25,6 +26,7 @@ impl Instruction {
 
         match Instruction::break_into_nibbles(bytes) {
             (0x0, 0x0, 0xE, 0x0) => Ok(ClearDisplay()),
+            (0x0, 0x0, 0xE, 0xE) => Ok(Return()),
             (0x1, _, _, _) => {
                 let address = Instruction::get_address(bytes);
                 Ok(Jump(address))
