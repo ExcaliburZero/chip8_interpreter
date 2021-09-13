@@ -8,6 +8,7 @@ type InstructionNibble = (u8, u8, u8, u8);
 pub enum Instruction {
     ClearDisplay(),                           // 0x00E0
     Jump(Address),                            // 0x1NNN
+    Call(Address),                            // 0x2NNN
     JumpIfEqValue(Register, u8),              // 0x3XNN
     JumpIfNotEqValue(Register, u8),           // 0x4XNN
     JumpIfRegistersEq(Register, Register),    // 0x5XY0
@@ -27,6 +28,10 @@ impl Instruction {
             (0x1, _, _, _) => {
                 let address = Instruction::get_address(bytes);
                 Ok(Jump(address))
+            }
+            (0x2, _, _, _) => {
+                let address = Instruction::get_address(bytes);
+                Ok(Call(address))
             }
             (0x3, a, _, _) => {
                 let register = Register::from_nibble(a);

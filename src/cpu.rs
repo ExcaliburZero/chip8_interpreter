@@ -78,6 +78,12 @@ impl CPU {
                 self.registers.program_counter = *address;
                 Ok(ScreenChanged::NoChange)
             }
+            // 0x2NNN
+            Call(address) => {
+                self.registers.stack.push(self.registers.program_counter);
+                self.registers.program_counter = *address;
+                Ok(ScreenChanged::NoChange)
+            }
             // 0x3XNN
             JumpIfEqValue(register, value) => {
                 if self.registers.get_register(register) == *value {
