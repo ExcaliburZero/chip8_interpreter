@@ -80,7 +80,7 @@ impl Instruction {
 
                 Ok(DrawSprite(x_register, y_register, height))
             }
-            _ => Err(format!("Unrecognized instruction: 0x{:x}", bytes)),
+            _ => Err(format!("Unrecognized instruction: 0x{:04x}", bytes)),
         }
     }
 
