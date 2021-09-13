@@ -6,15 +6,16 @@ type InstructionNibble = (u8, u8, u8, u8);
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum Instruction {
-    ClearDisplay(),                        // 0x00E0
-    Jump(Address),                         // 0x1NNN
-    JumpIfEqValue(Register, u8),           // 0x3XNN
-    JumpIfNotEqValue(Register, u8),        // 0x4XNN
-    JumpIfRegistersEq(Register, Register), // 0x5XY0
-    SetRegister(Register, u8),             // 0x6XNN
-    IncrementRegister(Register, u8),       // 0x7XNN
-    SetIndexRegister(Address),             // 0xANNN
-    DrawSprite(Register, Register, u8),    // 0xDXYN
+    ClearDisplay(),                           // 0x00E0
+    Jump(Address),                            // 0x1NNN
+    JumpIfEqValue(Register, u8),              // 0x3XNN
+    JumpIfNotEqValue(Register, u8),           // 0x4XNN
+    JumpIfRegistersEq(Register, Register),    // 0x5XY0
+    SetRegister(Register, u8),                // 0x6XNN
+    IncrementRegister(Register, u8),          // 0x7XNN
+    JumpIfRegistersNotEq(Register, Register), // 0x9XY0
+    SetIndexRegister(Address),                // 0xANNN
+    DrawSprite(Register, Register, u8),       // 0xDXYN
 }
 
 impl Instruction {
@@ -56,6 +57,12 @@ impl Instruction {
                 let value = Instruction::get_value(bytes);
 
                 Ok(IncrementRegister(register, value))
+            }
+            (0x9, a, b, 0x0) => {
+                let first_register = Register::from_nibble(a);
+                let second_register = Register::from_nibble(b);
+
+                Ok(JumpIfRegistersNotEq(first_register, second_register))
             }
             (0xA, _, _, _) => {
                 let address = Instruction::get_address(bytes);

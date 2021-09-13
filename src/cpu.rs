@@ -116,6 +116,16 @@ impl CPU {
                     .set_register(register, prev_value + increment);
                 Ok(ScreenChanged::NoChange)
             }
+            // 0x9XY0
+            JumpIfRegistersNotEq(first_register, second_register) => {
+                let a = self.registers.get_register(first_register);
+                let b = self.registers.get_register(second_register);
+                if a != b {
+                    self.registers.program_counter += INSTRUCTION_SIZE_BYTES;
+                }
+
+                Ok(ScreenChanged::NoChange)
+            }
             // 0xANNN
             SetIndexRegister(address) => {
                 self.registers.index_register = *address;
