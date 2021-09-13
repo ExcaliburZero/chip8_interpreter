@@ -130,6 +130,12 @@ impl CPU {
                     .set_register(register, prev_value + increment);
                 Ok(ScreenChanged::NoChange)
             }
+            // 0x8XY0
+            CopyRegister(first_register, second_register) => {
+                let value = self.registers.get_register(second_register);
+                self.registers.set_register(first_register, value);
+                Ok(ScreenChanged::NoChange)
+            }
             // 0x9XY0
             JumpIfRegistersNotEq(first_register, second_register) => {
                 let a = self.registers.get_register(first_register);
