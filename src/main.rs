@@ -9,6 +9,9 @@ use clap::{App, Arg, ArgMatches};
 
 use chip8_interpreter::{cpu, screen};
 
+const MAX_INSTRUCTIONS_PER_SECOND: u64 = 700;
+const ONE_SECOND_IN_MICROSECONDS: u64 = 1000000;
+
 fn main() {
     let matches = App::new("chip8_interpreter")
         .version("0.1.0")
@@ -52,9 +55,13 @@ fn run(args: &ArgMatches) -> Result<(), String> {
             // Redraw the screen
             display_screen(&cpu.screen);
 
-            let sleep_constant = time::Duration::from_millis(40);
-            thread::sleep(sleep_constant);
+            //let sleep_constant = time::Duration::from_millis(40);
+            //thread::sleep(sleep_constant);
         }
+
+        let sleep_constant =
+            time::Duration::from_micros(ONE_SECOND_IN_MICROSECONDS / MAX_INSTRUCTIONS_PER_SECOND);
+        thread::sleep(sleep_constant);
     }
 
     Ok(())
