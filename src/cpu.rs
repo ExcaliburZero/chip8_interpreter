@@ -184,8 +184,8 @@ impl CPU {
                 self.registers.set_register(first_register, value);
 
                 self.registers.vf = match overflowed {
-                    true => 1,
-                    false => 0,
+                    true => 0,
+                    false => 1,
                 };
 
                 Ok(ScreenChanged::NoChange)
