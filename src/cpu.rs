@@ -267,6 +267,13 @@ impl CPU {
                 self.registers.delay_timer = value;
                 Ok(ScreenChanged::NoChange)
             }
+            // 0xFX1E
+            IncrementIndexByRegister(register) => {
+                let value = self.registers.get_register(register);
+
+                self.registers.index_register += value as u16;
+                Ok(ScreenChanged::NoChange)
+            }
             // 0xFX29
             GetFontCharacter(register) => {
                 let value = self.registers.get_register(register) as u16;
