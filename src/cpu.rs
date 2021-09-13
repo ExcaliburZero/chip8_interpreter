@@ -86,6 +86,14 @@ impl CPU {
 
                 Ok(ScreenChanged::NoChange)
             }
+            // 0x4XNN
+            JumpIfNotEqValue(register, value) => {
+                if self.registers.get_register(register) != *value {
+                    self.registers.program_counter += INSTRUCTION_SIZE_BYTES;
+                }
+
+                Ok(ScreenChanged::NoChange)
+            }
             // 0x6XNN
             SetRegister(register, value) => {
                 self.registers.set_register(register, *value);

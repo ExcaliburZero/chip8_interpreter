@@ -7,6 +7,7 @@ pub enum Instruction {
     ClearDisplay(),                     // 0x00E0
     Jump(Address),                      // 0x1NNN
     JumpIfEqValue(Register, u8),        // 0x3XNN
+    JumpIfNotEqValue(Register, u8),     // 0x4XNN
     SetRegister(Register, u8),          // 0x6XNN
     IncrementRegister(Register, u8),    // 0x7XNN
     SetIndexRegister(Address),          // 0xANNN
@@ -31,6 +32,12 @@ impl Instruction {
                         let value = Instruction::get_value(bytes);
 
                         Ok(JumpIfEqValue(register, value))
+                    }
+                    0x4 => {
+                        let register = Register::from_nibble(Instruction::get_second_nibble(bytes));
+                        let value = Instruction::get_value(bytes);
+
+                        Ok(JumpIfNotEqValue(register, value))
                     }
                     0x6 => {
                         let register = Register::from_nibble(Instruction::get_second_nibble(bytes));
