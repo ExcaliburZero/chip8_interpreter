@@ -30,6 +30,7 @@ pub enum Instruction {
     DrawSprite(Register, Register, u8),         // 0xDXYN
     GetDelayTimer(Register),                    // 0xFX07
     SetDelayTimer(Register),                    // 0xFX15
+    SetSoundTimer(Register),                    // 0xFX18
     IncrementIndexByRegister(Register),         // 0xFX1E
     GetFontCharacter(Register),                 // 0xFX29
     StoreBinCodedDec(Register),                 // 0xFX33
@@ -161,6 +162,11 @@ impl Instruction {
                 let register = Register::from_nibble(a);
 
                 Ok(GetDelayTimer(register))
+            }
+            (0xF, a, 0x1, 0x8) => {
+                let register = Register::from_nibble(a);
+
+                Ok(SetSoundTimer(register))
             }
             (0xF, a, 0x1, 0x5) => {
                 let register = Register::from_nibble(a);

@@ -325,6 +325,13 @@ impl CPU {
                 self.registers.delay_timer = value;
                 Ok(ScreenChanged::NoChange)
             }
+            // 0xFX18
+            SetSoundTimer(register) => {
+                let value = self.registers.get_register(register);
+
+                self.registers.sound_timer = value;
+                Ok(ScreenChanged::NoChange)
+            }
             // 0xFX1E
             IncrementIndexByRegister(register) => {
                 let value = self.registers.get_register(register);
