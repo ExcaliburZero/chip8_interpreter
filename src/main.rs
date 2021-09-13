@@ -3,6 +3,7 @@ extern crate clap;
 use std::fs::File;
 use std::io;
 use std::io::{BufReader, Read};
+use std::{thread, time};
 
 use clap::{App, Arg, ArgMatches};
 
@@ -50,6 +51,9 @@ fn run(args: &ArgMatches) -> Result<(), String> {
 
             // Redraw the screen
             display_screen(&cpu.screen);
+
+            let sleep_constant = time::Duration::from_millis(40);
+            thread::sleep(sleep_constant);
         }
     }
 
