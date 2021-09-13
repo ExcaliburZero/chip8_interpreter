@@ -2,13 +2,35 @@ use std::io::Write;
 
 use crate::screen::{Pixel, Screen};
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum InputState {
     Pressed,
     NotPressed,
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Inputs {
-    one: InputState,
+    zero: InputState,
+    eight: InputState,
+}
+
+impl Inputs {
+    pub fn get_input(&self, key_id: u8) -> Result<InputState, String> {
+        match key_id {
+            0 => Ok(self.zero),
+            8 => Ok(self.eight),
+            _ => Err(format!("Unrecognized key id: 0x{:02x}", key_id)),
+        }
+    }
+}
+
+impl Default for Inputs {
+    fn default() -> Self {
+        Inputs {
+            zero: InputState::NotPressed,
+            eight: InputState::NotPressed,
+        }
+    }
 }
 
 pub trait View {
@@ -56,7 +78,8 @@ impl<W: Write> View for CliView<W> {
 
     fn get_inputs(&mut self) -> Inputs {
         Inputs {
-            one: InputState::NotPressed,
+            zero: InputState::NotPressed,
+            eight: InputState::NotPressed,
         }
     }
 }

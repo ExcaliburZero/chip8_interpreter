@@ -41,6 +41,7 @@ pub struct CPU {
     ram: ram::RAM,
     pub screen: Screen,
     last_timer_tick: Option<Instant>,
+    inputs: Inputs,
 }
 
 impl CPU {
@@ -57,6 +58,7 @@ impl CPU {
     }
 
     pub fn step(&mut self, time: &Instant, inputs: &Inputs) -> Result<ScreenChanged, String> {
+        self.inputs = inputs.clone();
         self.handle_timers(time);
 
         let instruction_bytes = self.fetch()?;
@@ -310,6 +312,16 @@ impl CPU {
                 };
 
                 Ok(ScreenChanged::Changed)
+            }
+            // 0xEXA1
+            SkipIfNotPressed(register) => {
+                let key = self.registers.get_register(register);
+
+                if self.inputs.get_input(key)? == InputState::NotPressed {
+                    self.registers.program_counter += INSTRUCTION_SIZE_BYTES;
+                }
+
+                Ok(ScreenChanged::NoChange)
             }
             // 0xFX07
             GetDelayTimer(register) => {
