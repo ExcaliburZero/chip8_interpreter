@@ -276,6 +276,21 @@ impl CPU {
                 self.registers.index_register = character_address;
                 Ok(ScreenChanged::NoChange)
             }
+            // 0xFX33
+            StoreBinCodedDec(register) => {
+                let value = self.registers.get_register(register);
+                let base_address = self.registers.index_register;
+
+                let hundreds_place = value / 100;
+                let tens_place = (value - hundreds_place * 100) / 10;
+                let ones_place = value % 10;
+
+                self.ram.write_byte(base_address, hundreds_place)?;
+                self.ram.write_byte(base_address + 1, tens_place)?;
+                self.ram.write_byte(base_address + 2, ones_place)?;
+
+                Ok(ScreenChanged::NoChange)
+            }
             // 0xFX55
             DumpRegisters(last_register) => {
                 let base_address = self.registers.index_register;
