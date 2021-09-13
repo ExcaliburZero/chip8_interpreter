@@ -251,7 +251,7 @@ impl Register {
         }
     }
 
-    fn to_nibble(&self) -> u8 {
+    fn to_nibble(self) -> u8 {
         use Register::*;
 
         match self {
