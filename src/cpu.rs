@@ -245,6 +245,29 @@ impl CPU {
 
                 Ok(ScreenChanged::Changed)
             }
+            // 0xFX15
+            SetDelayTimer(register) => {
+                let value = self.registers.get_register(register);
+
+                self.registers.delay_timer = value;
+                Ok(ScreenChanged::NoChange)
+            }
+            // 0xFX55
+            DumpRegisters(last_register) => {
+                let base_address = self.registers.index_register;
+
+                for (i, register) in Register::inclusive_range(&Register::V0, last_register)?
+                    .iter()
+                    .enumerate()
+                {
+                    let value = self.registers.get_register(register);
+
+                    let dest_address = base_address + (i as u16);
+                    self.ram.write_byte(dest_address, value)?;
+                }
+
+                Ok(ScreenChanged::NoChange)
+            }
             i => panic!("Unhandled instruction: {:?}", i),
         }
     }

@@ -26,6 +26,8 @@ pub enum Instruction {
     JumpIfRegistersNotEq(Register, Register), // 0x9XY0
     SetIndexRegister(Address),                // 0xANNN
     DrawSprite(Register, Register, u8),       // 0xDXYN
+    SetDelayTimer(Register),                  // 0xFX15
+    DumpRegisters(Register),                  // 0xFX55
 }
 
 impl Instruction {
@@ -136,6 +138,16 @@ impl Instruction {
 
                 Ok(DrawSprite(x_register, y_register, height))
             }
+            (0xF, a, 0x1, 0x5) => {
+                let register = Register::from_nibble(a);
+
+                Ok(SetDelayTimer(register))
+            }
+            (0xF, a, 0x5, 0x5) => {
+                let register = Register::from_nibble(a);
+
+                Ok(DumpRegisters(register))
+            }
             _ => Err(format!("Unrecognized instruction: 0x{:04x}", bytes)),
         }
     }
@@ -231,6 +243,42 @@ impl Register {
                 )
             }
         }
+    }
+
+    fn to_nibble(&self) -> u8 {
+        use Register::*;
+
+        match self {
+            V0 => 0x0,
+            V1 => 0x1,
+            V2 => 0x2,
+            V3 => 0x3,
+            V4 => 0x4,
+            V5 => 0x5,
+            V6 => 0x6,
+            V7 => 0x7,
+            V8 => 0x8,
+            V9 => 0x9,
+            Va => 0xA,
+            Vb => 0xB,
+            Vc => 0xC,
+            Vd => 0xD,
+            Ve => 0xE,
+            Vf => 0xF,
+        }
+    }
+
+    pub fn inclusive_range(start: &Register, end: &Register) -> Result<Vec<Register>, String> {
+        let start_nibble = start.to_nibble();
+        let end_nibble = start.to_nibble();
+
+        if end_nibble < start_nibble {
+            return Err(format!("Invalid register range: {:?} - {:?}", start, end));
+        }
+
+        Ok((start_nibble..=end_nibble)
+            .map(|n| Register::from_nibble(n))
+            .collect())
     }
 }
 
