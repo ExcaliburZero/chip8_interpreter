@@ -1,3 +1,5 @@
+extern crate rand;
+
 use crate::instruction::{Instruction, Register, INSTRUCTION_SIZE_BYTES};
 use crate::ram;
 use crate::ram::Address;
@@ -240,6 +242,15 @@ impl CPU {
             // 0xANNN
             SetIndexRegister(address) => {
                 self.registers.index_register = *address;
+                Ok(ScreenChanged::NoChange)
+            }
+            // 0xCXNN
+            SetRandomAnd(register, mask) => {
+                let random_value: u8 = rand::random();
+
+                let value = random_value & mask;
+
+                self.registers.set_register(register, value);
                 Ok(ScreenChanged::NoChange)
             }
             // 0xDXYN

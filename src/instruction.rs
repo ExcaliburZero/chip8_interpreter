@@ -26,6 +26,7 @@ pub enum Instruction {
     LeftShift(Register),                        // 0x8XYE
     JumpIfRegistersNotEq(Register, Register),   // 0x9XY0
     SetIndexRegister(Address),                  // 0xANNN
+    SetRandomAnd(Register, u8),                 // 0xCXNN
     DrawSprite(Register, Register, u8),         // 0xDXYN
     SetDelayTimer(Register),                    // 0xFX15
     IncrementIndexByRegister(Register),         // 0xFX1E
@@ -141,6 +142,12 @@ impl Instruction {
             (0xA, _, _, _) => {
                 let address = Instruction::get_address(bytes);
                 Ok(SetIndexRegister(address))
+            }
+            (0xC, a, _, _) => {
+                let register = Register::from_nibble(a);
+                let value = Instruction::get_value(bytes);
+
+                Ok(SetRandomAnd(register, value))
             }
             (0xD, a, b, c) => {
                 let x_register = Register::from_nibble(a);
