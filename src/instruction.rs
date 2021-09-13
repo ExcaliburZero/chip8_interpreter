@@ -6,30 +6,31 @@ type InstructionNibble = (u8, u8, u8, u8);
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Instruction {
-    ClearDisplay(),                           // 0x00E0
-    Return(),                                 // 0x00EE
-    Jump(Address),                            // 0x1NNN
-    Call(Address),                            // 0x2NNN
-    JumpIfEqValue(Register, u8),              // 0x3XNN
-    JumpIfNotEqValue(Register, u8),           // 0x4XNN
-    JumpIfRegistersEq(Register, Register),    // 0x5XY0
-    SetRegister(Register, u8),                // 0x6XNN
-    IncrementRegister(Register, u8),          // 0x7XNN
-    CopyRegister(Register, Register),         // 0x8XY0
-    BitwiseOr(Register, Register),            // 0x8XY1
-    BitwiseAnd(Register, Register),           // 0x8XY2
-    BitwiseXor(Register, Register),           // 0x8XY3
-    IncrementByRegister(Register, Register),  // 0x8XY4
-    DecrementByRegister(Register, Register),  // 0x8XY5
-    RightShift(Register),                     // 0x8XY6
-    LeftShift(Register),                      // 0x8XYE
-    JumpIfRegistersNotEq(Register, Register), // 0x9XY0
-    SetIndexRegister(Address),                // 0xANNN
-    DrawSprite(Register, Register, u8),       // 0xDXYN
-    SetDelayTimer(Register),                  // 0xFX15
-    GetFontCharacter(Register),               // 0xFX29
-    DumpRegisters(Register),                  // 0xFX55
-    LoadRegisters(Register),                  // 0xFX65
+    ClearDisplay(),                             // 0x00E0
+    Return(),                                   // 0x00EE
+    Jump(Address),                              // 0x1NNN
+    Call(Address),                              // 0x2NNN
+    JumpIfEqValue(Register, u8),                // 0x3XNN
+    JumpIfNotEqValue(Register, u8),             // 0x4XNN
+    JumpIfRegistersEq(Register, Register),      // 0x5XY0
+    SetRegister(Register, u8),                  // 0x6XNN
+    IncrementRegister(Register, u8),            // 0x7XNN
+    CopyRegister(Register, Register),           // 0x8XY0
+    BitwiseOr(Register, Register),              // 0x8XY1
+    BitwiseAnd(Register, Register),             // 0x8XY2
+    BitwiseXor(Register, Register),             // 0x8XY3
+    IncrementByRegister(Register, Register),    // 0x8XY4
+    DecrementByRegister(Register, Register),    // 0x8XY5
+    RightShift(Register),                       // 0x8XY6
+    DecrementByRegisterRev(Register, Register), // 0x8XY7
+    LeftShift(Register),                        // 0x8XYE
+    JumpIfRegistersNotEq(Register, Register),   // 0x9XY0
+    SetIndexRegister(Address),                  // 0xANNN
+    DrawSprite(Register, Register, u8),         // 0xDXYN
+    SetDelayTimer(Register),                    // 0xFX15
+    GetFontCharacter(Register),                 // 0xFX29
+    DumpRegisters(Register),                    // 0xFX55
+    LoadRegisters(Register),                    // 0xFX65
 }
 
 impl Instruction {
@@ -117,6 +118,12 @@ impl Instruction {
                 let register = Register::from_nibble(a);
 
                 Ok(RightShift(register))
+            }
+            (0x8, a, b, 0x7) => {
+                let first_register = Register::from_nibble(a);
+                let second_register = Register::from_nibble(b);
+
+                Ok(DecrementByRegisterRev(first_register, second_register))
             }
             (0x8, a, _, 0xE) => {
                 let register = Register::from_nibble(a);

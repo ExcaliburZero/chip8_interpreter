@@ -201,6 +201,21 @@ impl CPU {
 
                 Ok(ScreenChanged::NoChange)
             }
+            // 0x8XY5
+            DecrementByRegisterRev(first_register, second_register) => {
+                let a = self.registers.get_register(first_register);
+                let b = self.registers.get_register(second_register);
+
+                let (value, overflowed) = u8::overflowing_sub(b, a);
+                self.registers.set_register(first_register, value);
+
+                self.registers.vf = match overflowed {
+                    true => 0,
+                    false => 1,
+                };
+
+                Ok(ScreenChanged::NoChange)
+            }
             // 0x8XYE
             LeftShift(register) => {
                 let a = self.registers.get_register(register);
