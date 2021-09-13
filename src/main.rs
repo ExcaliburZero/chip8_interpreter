@@ -43,9 +43,12 @@ fn run(args: &ArgMatches) -> Result<(), String> {
         let screen_changed = cpu.step()?;
 
         if screen_changed == cpu::ScreenChanged::Changed {
-            //print!("\x1B[32A");
-            //print!("\x1B[J");
-            println!("----------------------");
+            // Clear the screen so we can redraw it
+            print!("\x1B[32A"); // Move the cursor back to the start of the screen
+            print!("\x1B[J"); // Clear everything below the cursor
+                              //println!("----------------------");
+
+            // Redraw the screen
             display_screen(&cpu.screen);
         }
     }

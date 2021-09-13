@@ -63,8 +63,6 @@ impl CPU {
     fn execute(&mut self, instruction: &Instruction) -> Result<ScreenChanged, String> {
         use Instruction::*;
 
-        println!("Inst: {:?}", instruction);
-
         // Increment the program counter to look at the next instruction. Jump instructions will
         // overwrite this change with their jump destination.
         self.registers.program_counter += INSTRUCTION_SIZE_BYTES;

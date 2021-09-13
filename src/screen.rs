@@ -52,8 +52,6 @@ impl Screen {
     ) -> Result<AnyPixelsUnset, String> {
         let height = bytes.len() as u8;
 
-        println!("Calculated height: {}", height);
-
         let mut any_unset = AnyPixelsUnset::No;
         for yi in 0..height {
             for xi in 0..8 {
