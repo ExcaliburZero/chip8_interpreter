@@ -5,6 +5,7 @@ pub const INSTRUCTION_SIZE_BYTES: u16 = 2;
 #[derive(Debug, Eq, PartialEq)]
 pub enum Instruction {
     ClearDisplay(),                     // 0x00E0
+    Jump(Address),                      // 0x1NNN
     SetRegister(Register, u8),          // 0x6XNN
     IncrementRegister(Register, u8),    // 0x7XNN
     SetIndexRegister(Address),          // 0xANNN
@@ -20,6 +21,10 @@ impl Instruction {
             _ => {
                 let opcode = Instruction::get_opcode(bytes);
                 match opcode {
+                    0x1 => {
+                        let address = Instruction::get_address(bytes);
+                        Ok(Jump(address))
+                    }
                     0x6 => {
                         let register = Register::from_nibble(Instruction::get_second_nibble(bytes));
                         let value = Instruction::get_value(bytes);

@@ -75,6 +75,11 @@ impl CPU {
                 self.screen.clear();
                 Ok(ScreenChanged::Changed)
             }
+            // 0x1NNN
+            Jump(address) => {
+                self.registers.program_counter = *address;
+                Ok(ScreenChanged::NoChange)
+            }
             // 0x6XNN
             SetRegister(register, value) => {
                 self.registers.set_register(register, *value);
