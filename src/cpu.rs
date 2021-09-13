@@ -160,6 +160,21 @@ impl CPU {
                 self.registers.set_register(first_register, a ^ b);
                 Ok(ScreenChanged::NoChange)
             }
+            // 0x8XY4
+            IncrementByRegister(first_register, second_register) => {
+                let a = self.registers.get_register(first_register);
+                let b = self.registers.get_register(second_register);
+
+                let (value, overflowed) = u8::overflowing_add(a, b);
+                self.registers.set_register(first_register, value);
+
+                self.registers.vf = match overflowed {
+                    true => 1,
+                    false => 0,
+                };
+
+                Ok(ScreenChanged::NoChange)
+            }
             // 0x9XY0
             JumpIfRegistersNotEq(first_register, second_register) => {
                 let a = self.registers.get_register(first_register);
