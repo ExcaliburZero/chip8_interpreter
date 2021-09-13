@@ -7,7 +7,8 @@ use std::{thread, time};
 
 use clap::{App, Arg, ArgMatches};
 
-use chip8_interpreter::{cpu, screen};
+use chip8_interpreter::views::View;
+use chip8_interpreter::{cpu, screen, views};
 
 const MAX_INSTRUCTIONS_PER_SECOND: u64 = 700;
 const ONE_SECOND_IN_MICROSECONDS: u64 = 1000000;
@@ -39,9 +40,13 @@ fn run(args: &ArgMatches) -> Result<(), String> {
     cpu.initialize_program_counter();
     println!("Initialized program counter");
 
+    let stdout = io::stdout();
+    let mut view = views::CliView::new(stdout.lock());
+    println!("Created view");
+
     println!("Starting execution");
 
-    display_screen(&cpu.screen);
+    view.open(&cpu.screen);
 
     loop {
         let screen_changed = cpu.step(&time::Instant::now())?;
@@ -53,7 +58,7 @@ fn run(args: &ArgMatches) -> Result<(), String> {
                               //println!("----------------------");
 
             // Redraw the screen
-            display_screen(&cpu.screen);
+            view.update(&cpu.screen);
 
             //let sleep_constant = time::Duration::from_millis(40);
             //thread::sleep(sleep_constant);
@@ -64,20 +69,9 @@ fn run(args: &ArgMatches) -> Result<(), String> {
         thread::sleep(sleep_constant);
     }
 
-    Ok(())
-}
+    view.close();
 
-fn display_screen(screen: &screen::Screen) {
-    for row in screen.pixels.iter() {
-        print!("|");
-        for p in row.iter() {
-            match p {
-                screen::Pixel::On => print!("#"),
-                screen::Pixel::Off => print!(" "),
-            }
-        }
-        println!("|");
-    }
+    Ok(())
 }
 
 fn load_rom(cpu: &mut cpu::CPU, filepath: &str) -> Result<(), String> {
