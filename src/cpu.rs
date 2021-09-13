@@ -94,6 +94,16 @@ impl CPU {
 
                 Ok(ScreenChanged::NoChange)
             }
+            // 0x5XY0
+            JumpIfRegistersEq(first_register, second_register) => {
+                let a = self.registers.get_register(first_register);
+                let b = self.registers.get_register(second_register);
+                if a == b {
+                    self.registers.program_counter += INSTRUCTION_SIZE_BYTES;
+                }
+
+                Ok(ScreenChanged::NoChange)
+            }
             // 0x6XNN
             SetRegister(register, value) => {
                 self.registers.set_register(register, *value);

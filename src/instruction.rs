@@ -4,14 +4,15 @@ pub const INSTRUCTION_SIZE_BYTES: u16 = 2;
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum Instruction {
-    ClearDisplay(),                     // 0x00E0
-    Jump(Address),                      // 0x1NNN
-    JumpIfEqValue(Register, u8),        // 0x3XNN
-    JumpIfNotEqValue(Register, u8),     // 0x4XNN
-    SetRegister(Register, u8),          // 0x6XNN
-    IncrementRegister(Register, u8),    // 0x7XNN
-    SetIndexRegister(Address),          // 0xANNN
-    DrawSprite(Register, Register, u8), // 0xDXYN
+    ClearDisplay(),                        // 0x00E0
+    Jump(Address),                         // 0x1NNN
+    JumpIfEqValue(Register, u8),           // 0x3XNN
+    JumpIfNotEqValue(Register, u8),        // 0x4XNN
+    JumpIfRegistersEq(Register, Register), // 0x5XY0
+    SetRegister(Register, u8),             // 0x6XNN
+    IncrementRegister(Register, u8),       // 0x7XNN
+    SetIndexRegister(Address),             // 0xANNN
+    DrawSprite(Register, Register, u8),    // 0xDXYN
 }
 
 impl Instruction {
@@ -38,6 +39,14 @@ impl Instruction {
                         let value = Instruction::get_value(bytes);
 
                         Ok(JumpIfNotEqValue(register, value))
+                    }
+                    0x5 => {
+                        let first_register =
+                            Register::from_nibble(Instruction::get_second_nibble(bytes));
+                        let second_register =
+                            Register::from_nibble(Instruction::get_third_nibble(bytes));
+
+                        Ok(JumpIfRegistersEq(first_register, second_register))
                     }
                     0x6 => {
                         let register = Register::from_nibble(Instruction::get_second_nibble(bytes));
