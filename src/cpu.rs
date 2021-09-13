@@ -190,6 +190,17 @@ impl CPU {
 
                 Ok(ScreenChanged::NoChange)
             }
+            // 0x8XY6
+            RightShift(register) => {
+                let a = self.registers.get_register(register);
+                let value = a >> 1;
+                let underflowed_bit = (a & 0x01) as u8;
+
+                self.registers.set_register(register, value);
+                self.registers.vf = underflowed_bit;
+
+                Ok(ScreenChanged::NoChange)
+            }
             // 0x8XYE
             LeftShift(register) => {
                 let a = self.registers.get_register(register);
