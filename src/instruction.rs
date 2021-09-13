@@ -2,6 +2,8 @@ use crate::ram::Address;
 
 pub const INSTRUCTION_SIZE_BYTES: u16 = 2;
 
+type InstructionNibble = (u8, u8, u8, u8);
+
 #[derive(Debug, Eq, PartialEq)]
 pub enum Instruction {
     ClearDisplay(),                        // 0x00E0
@@ -19,68 +21,55 @@ impl Instruction {
     pub fn from_u16(bytes: u16) -> Result<Instruction, String> {
         use Instruction::*;
 
-        match bytes {
-            0x00E0 => Ok(ClearDisplay()),
-            _ => {
-                let opcode = Instruction::get_opcode(bytes);
-                match opcode {
-                    0x1 => {
-                        let address = Instruction::get_address(bytes);
-                        Ok(Jump(address))
-                    }
-                    0x3 => {
-                        let register = Register::from_nibble(Instruction::get_second_nibble(bytes));
-                        let value = Instruction::get_value(bytes);
-
-                        Ok(JumpIfEqValue(register, value))
-                    }
-                    0x4 => {
-                        let register = Register::from_nibble(Instruction::get_second_nibble(bytes));
-                        let value = Instruction::get_value(bytes);
-
-                        Ok(JumpIfNotEqValue(register, value))
-                    }
-                    0x5 => {
-                        let first_register =
-                            Register::from_nibble(Instruction::get_second_nibble(bytes));
-                        let second_register =
-                            Register::from_nibble(Instruction::get_third_nibble(bytes));
-
-                        Ok(JumpIfRegistersEq(first_register, second_register))
-                    }
-                    0x6 => {
-                        let register = Register::from_nibble(Instruction::get_second_nibble(bytes));
-                        let value = Instruction::get_value(bytes);
-
-                        Ok(SetRegister(register, value))
-                    }
-                    0x7 => {
-                        let register = Register::from_nibble(Instruction::get_second_nibble(bytes));
-                        let value = Instruction::get_value(bytes);
-
-                        Ok(IncrementRegister(register, value))
-                    }
-                    0xA => {
-                        let address = Instruction::get_address(bytes);
-                        Ok(SetIndexRegister(address))
-                    }
-                    0xD => {
-                        let x_register =
-                            Register::from_nibble(Instruction::get_second_nibble(bytes));
-                        let y_register =
-                            Register::from_nibble(Instruction::get_third_nibble(bytes));
-                        let height = Instruction::get_fourth_nibble(bytes);
-
-                        Ok(DrawSprite(x_register, y_register, height))
-                    }
-                    _ => Err(format!("Unrecognized instruction: 0x{:x}", bytes)),
-                }
+        match Instruction::break_into_nibbles(bytes) {
+            (0x0, 0x0, 0xE, 0x0) => Ok(ClearDisplay()),
+            (0x1, _, _, _) => {
+                let address = Instruction::get_address(bytes);
+                Ok(Jump(address))
             }
-        }
-    }
+            (0x3, a, _, _) => {
+                let register = Register::from_nibble(a);
+                let value = Instruction::get_value(bytes);
 
-    fn get_opcode(bytes: u16) -> u8 {
-        Instruction::get_first_nibble(bytes)
+                Ok(JumpIfEqValue(register, value))
+            }
+            (0x4, a, _, _) => {
+                let register = Register::from_nibble(a);
+                let value = Instruction::get_value(bytes);
+
+                Ok(JumpIfNotEqValue(register, value))
+            }
+            (0x5, a, b, 0x0) => {
+                let first_register = Register::from_nibble(a);
+                let second_register = Register::from_nibble(b);
+
+                Ok(JumpIfRegistersEq(first_register, second_register))
+            }
+            (0x6, a, _, _) => {
+                let register = Register::from_nibble(a);
+                let value = Instruction::get_value(bytes);
+
+                Ok(SetRegister(register, value))
+            }
+            (0x7, a, _, _) => {
+                let register = Register::from_nibble(a);
+                let value = Instruction::get_value(bytes);
+
+                Ok(IncrementRegister(register, value))
+            }
+            (0xA, _, _, _) => {
+                let address = Instruction::get_address(bytes);
+                Ok(SetIndexRegister(address))
+            }
+            (0xD, a, b, c) => {
+                let x_register = Register::from_nibble(a);
+                let y_register = Register::from_nibble(b);
+                let height = c;
+
+                Ok(DrawSprite(x_register, y_register, height))
+            }
+            _ => Err(format!("Unrecognized instruction: 0x{:x}", bytes)),
+        }
     }
 
     fn get_address(bytes: u16) -> Address {
@@ -114,6 +103,15 @@ impl Instruction {
     fn get_value(bytes: u16) -> u8 {
         // Get the last two nibbles
         (bytes & 0x00FF) as u8
+    }
+
+    fn break_into_nibbles(bytes: u16) -> InstructionNibble {
+        let first = Instruction::get_first_nibble(bytes);
+        let second = Instruction::get_second_nibble(bytes);
+        let third = Instruction::get_third_nibble(bytes);
+        let fourth = Instruction::get_fourth_nibble(bytes);
+
+        (first, second, third, fourth)
     }
 }
 
