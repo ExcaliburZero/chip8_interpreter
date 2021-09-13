@@ -252,6 +252,15 @@ impl CPU {
                 self.registers.delay_timer = value;
                 Ok(ScreenChanged::NoChange)
             }
+            // 0xFX29
+            GetFontCharacter(register) => {
+                let value = self.registers.get_register(register) as u16;
+
+                let character_address = FONT_ADDRESS + value * 5;
+
+                self.registers.index_register = character_address;
+                Ok(ScreenChanged::NoChange)
+            }
             // 0xFX55
             DumpRegisters(last_register) => {
                 let base_address = self.registers.index_register;
