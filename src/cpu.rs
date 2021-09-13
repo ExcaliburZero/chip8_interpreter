@@ -1,5 +1,8 @@
 extern crate rand;
 
+use std::cmp;
+use std::time::{Duration, Instant};
+
 use crate::instruction::{Instruction, Register, INSTRUCTION_SIZE_BYTES};
 use crate::ram;
 use crate::ram::Address;
@@ -28,11 +31,15 @@ const DEFAULT_FONT: [u8; 80] = [
 const FONT_ADDRESS: Address = 0x0050;
 const ROM_ADDRESS: Address = 0x0200;
 
+const ONE_SECOND_IN_MICROSECONDS: u64 = 1000000;
+const TIMER_TICK_DURATION: Duration = Duration::from_micros(ONE_SECOND_IN_MICROSECONDS / 60);
+
 #[derive(Debug, Default, Eq, PartialEq)]
 pub struct CPU {
     registers: Registers,
     ram: ram::RAM,
     pub screen: Screen,
+    last_timer_tick: Option<Instant>,
 }
 
 impl CPU {
@@ -48,10 +55,42 @@ impl CPU {
         self.registers.program_counter = ROM_ADDRESS;
     }
 
-    pub fn step(&mut self) -> Result<ScreenChanged, String> {
+    pub fn step(&mut self, time: &Instant) -> Result<ScreenChanged, String> {
+        self.handle_timers(time);
+
         let instruction_bytes = self.fetch()?;
         let instruction = self.decode(instruction_bytes)?;
         self.execute(&instruction)
+    }
+
+    fn handle_timers(&mut self, time: &Instant) {
+        // Handle if this is the first step and we do not have a time recorded yet
+        if self.last_timer_tick.is_none() {
+            self.last_timer_tick = Some(*time);
+        }
+
+        // Check if we need to decrement the timers
+        let time_since_last_tick = *time - self.last_timer_tick.unwrap();
+        if time_since_last_tick > TIMER_TICK_DURATION {
+            // Find out how many ticks we need to apply. This will likely only ever be 1, but
+            // might as well handle the case where 2+ ticks might need to be applied. Though that
+            // would likely only be in cases of extreme lag.
+            let num_ticks_elapsed =
+                (time_since_last_tick.as_micros() / TIMER_TICK_DURATION.as_micros()) as u8;
+
+            // Adjust the timing value that we record. Making sure to exclude the portion of the
+            // next tick that hasn't elapsed yet.
+            let time_increment = Duration::from_micros(
+                (num_ticks_elapsed as u128 * TIMER_TICK_DURATION.as_micros()) as u64,
+            );
+            self.last_timer_tick = Some(self.last_timer_tick.unwrap() + time_increment);
+
+            // Decrement the timers
+            self.registers.delay_timer =
+                cmp::max(0, self.registers.delay_timer - num_ticks_elapsed);
+            self.registers.sound_timer =
+                cmp::max(0, self.registers.sound_timer - num_ticks_elapsed);
+        }
     }
 
     fn fetch(&self) -> Result<u16, String> {

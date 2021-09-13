@@ -41,7 +41,7 @@ fn run(args: &ArgMatches) -> Result<(), String> {
     display_screen(&cpu.screen);
 
     loop {
-        let screen_changed = cpu.step()?;
+        let screen_changed = cpu.step(&time::Instant::now())?;
 
         if screen_changed == cpu::ScreenChanged::Changed {
             // Clear the screen so we can redraw it
