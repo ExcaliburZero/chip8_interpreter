@@ -77,6 +77,9 @@ impl<W: Write> View for CliView<W> {
     }
 
     fn get_inputs(&mut self) -> Inputs {
+        // TODO: look into
+        // https://www.reddit.com/r/rust/comments/c8076q/check_if_a_key_is_pressed/
+        // https://github.com/redox-os/termion/blob/master/examples/keys.rs
         Inputs {
             zero: InputState::NotPressed,
             eight: InputState::NotPressed,

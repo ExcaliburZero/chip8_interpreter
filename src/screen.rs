@@ -56,17 +56,20 @@ impl Screen {
         for yi in 0..height {
             for xi in 0..8 {
                 let offset = Position::new(xi, yi);
-                let sprite_pixel = self.get_sprite_pixel(bytes, &offset)?;
+                let new_position = position.shifted(xi, yi);
 
-                if sprite_pixel == Pixel::On {
-                    let new_position = position.shifted(xi, yi);
-                    let old_value = self.get_value(&new_position)?;
+                if self.validate_position(&new_position).is_ok() {
+                    let sprite_pixel = self.get_sprite_pixel(bytes, &offset)?;
 
-                    match old_value {
-                        Pixel::Off => self.set_value(&new_position, Pixel::On)?,
-                        Pixel::On => {
-                            self.set_value(&new_position, Pixel::Off)?;
-                            any_unset = AnyPixelsUnset::Yes;
+                    if sprite_pixel == Pixel::On {
+                        let old_value = self.get_value(&new_position)?;
+
+                        match old_value {
+                            Pixel::Off => self.set_value(&new_position, Pixel::On)?,
+                            Pixel::On => {
+                                self.set_value(&new_position, Pixel::Off)?;
+                                any_unset = AnyPixelsUnset::Yes;
+                            }
                         }
                     }
                 }
