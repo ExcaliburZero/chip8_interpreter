@@ -50,3 +50,24 @@ pub fn break_into_nibbles(bytes: u16) -> InstructionNibbles {
 
     (first, second, third, fourth)
 }
+
+#[test]
+fn get_nth_bit_all() {
+    assert_eq!(Ok(false), get_nth_bit(0, 0b00000000));
+    assert_eq!(Ok(true), get_nth_bit(0, 0b00000001));
+    assert_eq!(Ok(true), get_nth_bit(1, 0b00000010));
+    assert_eq!(Ok(true), get_nth_bit(2, 0b00000100));
+    assert_eq!(Ok(true), get_nth_bit(3, 0b00001000));
+    assert_eq!(Ok(true), get_nth_bit(4, 0b00010000));
+    assert_eq!(Ok(true), get_nth_bit(5, 0b00100000));
+    assert_eq!(Ok(true), get_nth_bit(6, 0b01000000));
+    assert_eq!(Ok(true), get_nth_bit(7, 0b10000000));
+}
+
+#[test]
+fn get_nth_bit_invalid_bit() {
+    assert_eq!(
+        Err("Invalid byte bit index: 8".to_string()),
+        get_nth_bit(8, 0b00000000)
+    );
+}
