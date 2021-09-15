@@ -169,15 +169,15 @@ impl Instruction {
 
                 Ok(GetDelayTimer(register))
             }
-            (0xF, a, 0x1, 0x8) => {
-                let register = Register::from_nibble(a);
-
-                Ok(SetSoundTimer(register))
-            }
             (0xF, a, 0x1, 0x5) => {
                 let register = Register::from_nibble(a);
 
                 Ok(SetDelayTimer(register))
+            }
+            (0xF, a, 0x1, 0x8) => {
+                let register = Register::from_nibble(a);
+
+                Ok(SetSoundTimer(register))
             }
             (0xF, a, 0x1, 0xE) => {
                 let register = Register::from_nibble(a);
@@ -344,6 +344,103 @@ fn instruction_from_u16() {
     use Register::*;
 
     assert_eq!(Ok(ClearDisplay()), Instruction::from_u16(0x00E0));
-    assert_eq!(Ok(SetIndexRegister(0x22A)), Instruction::from_u16(0xA22A));
+    assert_eq!(Ok(Return()), Instruction::from_u16(0x00EE));
+    assert_eq!(Ok(Jump(0x0123)), Instruction::from_u16(0x1123));
+    assert_eq!(Ok(Call(0x0123)), Instruction::from_u16(0x2123));
+    assert_eq!(
+        Ok(JumpIfEqValue(Register::V2, 0x12)),
+        Instruction::from_u16(0x3212)
+    );
+    assert_eq!(
+        Ok(JumpIfNotEqValue(Register::V2, 0x12)),
+        Instruction::from_u16(0x4212)
+    );
+    assert_eq!(
+        Ok(JumpIfRegistersEq(Register::V2, Register::V3)),
+        Instruction::from_u16(0x5230)
+    );
     assert_eq!(Ok(SetRegister(V1, 0x23)), Instruction::from_u16(0x6123));
+    assert_eq!(
+        Ok(IncrementRegister(Register::V4, 0x12)),
+        Instruction::from_u16(0x7412)
+    );
+    assert_eq!(
+        Ok(CopyRegister(Register::V5, Register::V6)),
+        Instruction::from_u16(0x8560)
+    );
+    assert_eq!(
+        Ok(BitwiseOr(Register::V7, Register::V8)),
+        Instruction::from_u16(0x8781)
+    );
+    assert_eq!(
+        Ok(BitwiseAnd(Register::V9, Register::Va)),
+        Instruction::from_u16(0x89A2)
+    );
+    assert_eq!(
+        Ok(BitwiseXor(Register::Vb, Register::Vc)),
+        Instruction::from_u16(0x8BC3)
+    );
+    assert_eq!(
+        Ok(IncrementByRegister(Register::Vd, Register::Ve)),
+        Instruction::from_u16(0x8DE4)
+    );
+    assert_eq!(
+        Ok(DecrementByRegister(Register::Vf, Register::Ve)),
+        Instruction::from_u16(0x8FE5)
+    );
+    assert_eq!(Ok(RightShift(Register::V1)), Instruction::from_u16(0x8106));
+    assert_eq!(
+        Ok(DecrementByRegisterRev(Register::V1, Register::V2)),
+        Instruction::from_u16(0x8127)
+    );
+    assert_eq!(Ok(LeftShift(Register::V1)), Instruction::from_u16(0x810E));
+    assert_eq!(
+        Ok(JumpIfRegistersNotEq(Register::V1, Register::V2)),
+        Instruction::from_u16(0x9120)
+    );
+    assert_eq!(Ok(SetIndexRegister(0x22A)), Instruction::from_u16(0xA22A));
+    assert_eq!(
+        Ok(SetRandomAnd(Register::V1, 0x23)),
+        Instruction::from_u16(0xC123)
+    );
+    assert_eq!(
+        Ok(DrawSprite(Register::V1, Register::V2, 0x03)),
+        Instruction::from_u16(0xD123)
+    );
+    assert_eq!(
+        Ok(SkipIfNotPressed(Register::V1)),
+        Instruction::from_u16(0xE1A1)
+    );
+    assert_eq!(
+        Ok(GetDelayTimer(Register::V1)),
+        Instruction::from_u16(0xF107)
+    );
+    assert_eq!(
+        Ok(SetDelayTimer(Register::V1)),
+        Instruction::from_u16(0xF115)
+    );
+    assert_eq!(
+        Ok(SetSoundTimer(Register::V1)),
+        Instruction::from_u16(0xF118)
+    );
+    assert_eq!(
+        Ok(IncrementIndexByRegister(Register::V1)),
+        Instruction::from_u16(0xF11E)
+    );
+    assert_eq!(
+        Ok(GetFontCharacter(Register::V1)),
+        Instruction::from_u16(0xF129)
+    );
+    assert_eq!(
+        Ok(StoreBinCodedDec(Register::V1)),
+        Instruction::from_u16(0xF133)
+    );
+    assert_eq!(
+        Ok(DumpRegisters(Register::V1)),
+        Instruction::from_u16(0xF155)
+    );
+    assert_eq!(
+        Ok(LoadRegisters(Register::V1)),
+        Instruction::from_u16(0xF165)
+    );
 }
