@@ -1,8 +1,7 @@
+use crate::bit_operations;
 use crate::ram::Address;
 
 pub const INSTRUCTION_SIZE_BYTES: u16 = 2;
-
-type InstructionNibble = (u8, u8, u8, u8);
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Instruction {
@@ -43,7 +42,7 @@ impl Instruction {
     pub fn from_u16(bytes: u16) -> Result<Instruction, String> {
         use Instruction::*;
 
-        match Instruction::break_into_nibbles(bytes) {
+        match bit_operations::break_into_nibbles(bytes) {
             (0x0, 0x0, 0xE, 0x0) => Ok(ClearDisplay()),
             (0x0, 0x0, 0xE, 0xE) => Ok(Return()),
             (0x1, _, _, _) => {
@@ -209,45 +208,11 @@ impl Instruction {
     }
 
     fn get_address(bytes: u16) -> Address {
-        // Get the last three nibbles
-        bytes & 0x0FFF
-    }
-
-    fn get_first_nibble(bytes: u16) -> u8 {
-        // Get the first nibble
-        let three_nibbles_len = 4 * 3;
-        ((bytes & 0xF000) >> three_nibbles_len) as u8
-    }
-
-    fn get_second_nibble(bytes: u16) -> u8 {
-        // Get the second nibble
-        let two_nibbles_len = 4 * 2;
-        ((bytes & 0x0F00) >> two_nibbles_len) as u8
-    }
-
-    fn get_third_nibble(bytes: u16) -> u8 {
-        // Get the third nibble
-        let one_nibble_len = 4;
-        ((bytes & 0x00F0) >> one_nibble_len) as u8
-    }
-
-    fn get_fourth_nibble(bytes: u16) -> u8 {
-        // Get the last nibble
-        (bytes & 0x000F) as u8
+        bit_operations::get_last_three_nibbles(bytes)
     }
 
     fn get_value(bytes: u16) -> u8 {
-        // Get the last two nibbles
-        (bytes & 0x00FF) as u8
-    }
-
-    fn break_into_nibbles(bytes: u16) -> InstructionNibble {
-        let first = Instruction::get_first_nibble(bytes);
-        let second = Instruction::get_second_nibble(bytes);
-        let third = Instruction::get_third_nibble(bytes);
-        let fourth = Instruction::get_fourth_nibble(bytes);
-
-        (first, second, third, fourth)
+        bit_operations::get_last_two_nibbles(bytes)
     }
 }
 
