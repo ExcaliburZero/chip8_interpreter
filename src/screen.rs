@@ -1,3 +1,5 @@
+use crate::bit_operations;
+
 const SPRITE_WIDTH: usize = 8;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -98,19 +100,10 @@ impl Screen {
         // algorithm to get the correct bit
         let bit_reverse_index = 7 - position.x;
 
-        match Screen::get_nth_bit(bit_reverse_index, bytes[position.y as usize])? {
+        match bit_operations::get_nth_bit(bit_reverse_index, bytes[position.y as usize])? {
             true => Ok(Pixel::On),
             false => Ok(Pixel::Off),
         }
-    }
-
-    fn get_nth_bit(n: u8, byte: u8) -> Result<bool, String> {
-        if n >= 8 {
-            return Err(format!("Invalid byte bit index: {}", n));
-        }
-
-        let mask = 1 << n;
-        Ok(((byte & mask) >> n) == 1)
     }
 
     fn validate_position(&self, position: &Position) -> Result<(), String> {

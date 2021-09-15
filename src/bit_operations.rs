@@ -1,5 +1,14 @@
 pub type InstructionNibbles = (u8, u8, u8, u8);
 
+pub fn get_nth_bit(n: u8, byte: u8) -> Result<bool, String> {
+    if n >= 8 {
+        return Err(format!("Invalid byte bit index: {}", n));
+    }
+
+    let mask = 1 << n;
+    Ok(((byte & mask) >> n) == 1)
+}
+
 pub fn get_last_two_nibbles(bytes: u16) -> u8 {
     // Get the last two nibbles
     (bytes & 0x00FF) as u8
