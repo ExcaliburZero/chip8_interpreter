@@ -83,3 +83,21 @@ fn ram_read_byte_invalid_memory_address() {
     let expected = Err("Read at invalid memory address: 0x1000".to_string());
     assert_eq!(expected, ram.read_byte(0x1000));
 }
+
+#[test]
+fn ram_write_byte_invalid_memory_address() {
+    let mut ram = RAM::default();
+
+    let expected = Err("Write at invalid memory address: 0x1000".to_string());
+    assert_eq!(expected, ram.write_byte(0x1000, 0xFF));
+}
+
+#[test]
+fn ram_read_u16() {
+    let mut ram = RAM::default();
+
+    assert_eq!(Ok(()), ram.write_byte(0x0000, 0x12));
+    assert_eq!(Ok(()), ram.write_byte(0x0001, 0x34));
+
+    assert_eq!(Ok(0x1234), ram.read_u16(0x0000));
+}
