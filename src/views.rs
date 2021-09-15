@@ -8,10 +8,33 @@ pub enum InputState {
     NotPressed,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+impl Default for InputState {
+    fn default() -> Self {
+        InputState::NotPressed
+    }
+}
+
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Inputs {
     zero: InputState,
     eight: InputState,
+}
+
+impl Inputs {
+    fn set_input(&mut self, input: &InputKey, value: InputState) {
+        use InputKey::*;
+
+        match input {
+            Zero => self.zero = value,
+            Eight => self.eight = value,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum InputKey {
+    Zero,
+    Eight,
 }
 
 impl Inputs {
@@ -24,20 +47,11 @@ impl Inputs {
     }
 }
 
-impl Default for Inputs {
-    fn default() -> Self {
-        Inputs {
-            zero: InputState::NotPressed,
-            eight: InputState::NotPressed,
-        }
-    }
-}
-
 pub trait View {
     fn open(&mut self, screen: &Screen);
     fn close(&mut self);
     fn update(&mut self, screen: &Screen);
-    fn get_inputs(&mut self) -> Inputs;
+    fn get_inputs(&mut self) -> Result<Inputs, String>;
 }
 
 pub struct CliView<W: Write> {
@@ -76,13 +90,13 @@ impl<W: Write> View for CliView<W> {
         self.display_screen(screen)
     }
 
-    fn get_inputs(&mut self) -> Inputs {
+    fn get_inputs(&mut self) -> Result<Inputs, String> {
         // TODO: look into
         // https://www.reddit.com/r/rust/comments/c8076q/check_if_a_key_is_pressed/
         // https://github.com/redox-os/termion/blob/master/examples/keys.rs
-        Inputs {
+        Ok(Inputs {
             zero: InputState::NotPressed,
             eight: InputState::NotPressed,
-        }
+        })
     }
 }

@@ -49,7 +49,7 @@ fn run(args: &ArgMatches) -> Result<(), String> {
     view.open(&cpu.screen);
 
     loop {
-        let inputs = view.get_inputs();
+        let inputs = view.get_inputs()?;
         let screen_changed = cpu.step(&time::Instant::now(), &inputs)?;
 
         if screen_changed == cpu::ScreenChanged::Changed {
