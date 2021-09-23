@@ -7,4 +7,5 @@ edition = "2018"
 
 [dependencies]
 clap = "2.33"
+minifb = "0.19.3"
 rand = ""

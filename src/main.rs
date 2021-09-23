@@ -6,6 +6,7 @@ use std::io::{BufReader, Read};
 use std::{thread, time};
 
 use clap::{App, Arg, ArgMatches};
+use minifb::{Key, Window, WindowOptions};
 
 use chip8_interpreter::views::View;
 use chip8_interpreter::{cpu, screen, views};
@@ -41,7 +42,8 @@ fn run(args: &ArgMatches) -> Result<(), String> {
     println!("Initialized program counter");
 
     let stdout = io::stdout();
-    let mut view = views::CliView::new(stdout.lock());
+    //let mut view = views::CliView::new(stdout.lock());
+    let mut view = views::MiniFbView::new("CHIP-8".to_string(), 64, 32, WindowOptions::default());
     println!("Created view");
 
     println!("Starting execution");
@@ -59,7 +61,9 @@ fn run(args: &ArgMatches) -> Result<(), String> {
                               //println!("----------------------");
 
             // Redraw the screen
-            view.update(&cpu.screen);
+            if view.update(&cpu.screen) == views::ViewState::Closed {
+                break;
+            }
 
             //let sleep_constant = time::Duration::from_millis(40);
             //thread::sleep(sleep_constant);
