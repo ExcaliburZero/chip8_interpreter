@@ -12,6 +12,15 @@ pub enum InputState {
     NotPressed,
 }
 
+impl InputState {
+    pub fn from_bool(value: bool) -> InputState {
+        match value {
+            true => InputState::Pressed,
+            false => InputState::NotPressed,
+        }
+    }
+}
+
 impl Default for InputState {
     fn default() -> Self {
         InputState::NotPressed
@@ -21,7 +30,9 @@ impl Default for InputState {
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Inputs {
     zero: InputState,
+    seven: InputState,
     eight: InputState,
+    nine: InputState,
 }
 
 impl Inputs {
@@ -30,7 +41,9 @@ impl Inputs {
 
         match input {
             Zero => self.zero = value,
+            Seven => self.seven = value,
             Eight => self.eight = value,
+            Nine => self.nine = value,
         }
     }
 }
@@ -45,7 +58,9 @@ impl Inputs {
     pub fn get_input(&self, key_id: u8) -> Result<InputState, String> {
         match key_id {
             0 => Ok(self.zero),
+            7 => Ok(self.seven),
             8 => Ok(self.eight),
+            9 => Ok(self.nine),
             _ => Err(format!("Unrecognized key id: 0x{:02x}", key_id)),
         }
     }
@@ -108,7 +123,9 @@ impl<W: Write> View for CliView<W> {
         // https://github.com/redox-os/termion/blob/master/examples/keys.rs
         Ok(Inputs {
             zero: InputState::NotPressed,
+            seven: InputState::NotPressed,
             eight: InputState::NotPressed,
+            nine: InputState::NotPressed,
         })
     }
 }
@@ -145,8 +162,10 @@ impl MiniFbView {
         let mut buffer: Vec<u32> = vec![0; self.width * self.height];
 
         for (i, b) in buffer.iter_mut().enumerate() {
-            let row = (i / 64) as usize;
-            let column = (i % 64) as usize;
+            let row = (i / (64 * 2)) as usize / 2;
+            let column = (i % (64 * 2)) as usize / 2;
+
+            //println!("{} => {}, {}", i, row, column);
 
             *b = match screen.pixels[row][column] {
                 Pixel::On => black,
@@ -187,8 +206,10 @@ impl View for MiniFbView {
 
     fn get_inputs(&mut self) -> Result<Inputs, String> {
         Ok(Inputs {
-            zero: InputState::NotPressed,
-            eight: InputState::NotPressed,
+            zero: InputState::from_bool(self.window.as_ref().unwrap().is_key_down(Key::Key0)),
+            seven: InputState::from_bool(self.window.as_ref().unwrap().is_key_down(Key::Key7)),
+            eight: InputState::from_bool(self.window.as_ref().unwrap().is_key_down(Key::Key8)),
+            nine: InputState::from_bool(self.window.as_ref().unwrap().is_key_down(Key::Key9)),
         })
     }
 }

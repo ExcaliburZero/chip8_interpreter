@@ -43,7 +43,12 @@ fn run(args: &ArgMatches) -> Result<(), String> {
 
     let stdout = io::stdout();
     //let mut view = views::CliView::new(stdout.lock());
-    let mut view = views::MiniFbView::new("CHIP-8".to_string(), 64, 32, WindowOptions::default());
+    let mut view = views::MiniFbView::new(
+        "CHIP-8".to_string(),
+        64 * 2,
+        32 * 2,
+        WindowOptions::default(),
+    );
     println!("Created view");
 
     println!("Starting execution");
